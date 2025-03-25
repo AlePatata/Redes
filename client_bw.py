@@ -8,18 +8,27 @@ import time
 def Rdr(s):
     while True:
         try:
-            data=s.recv(1500).decode()
+            data=s.recv(1500)
         except:
             data = None
         if not data: 
             break
-        print(data, end = '')
+        sys.stdout.buffer.write(data)
+        sys.stdout.flush()
 
-if len(sys.argv) != 3:
-    print('Use: '+sys.argv[0]+' host port')
+if len(sys.argv) != 4:
+    print('Use: '+sys.argv[0]+' size host port')
     sys.exit(1)
 
-s = jsockets.socket_tcp_connect(sys.argv[1], sys.argv[2])
+''' args:     
+0 -> client_echo3.py 
+1 -> size
+2 -> host
+3 -> port
+4 -> in
+5 -> out
+'''
+s = jsockets.socket_tcp_connect(sys.argv[2], sys.argv[3])
 if s is None:
     print('could not open socket')
     sys.exit(1)
@@ -28,9 +37,12 @@ if s is None:
 newthread = threading.Thread(target=Rdr, args=(s,))
 newthread.start()
 
-# En este otro thread leo desde stdin hacia socket:
-for line in sys.stdin:
-    s.send(line.encode())
+# En este otro thread leo desde stdin.buffer hacia socket, considerando el size recibido:
+while True:
+    chunk = (sys.stdin.buffer.read(int(sys.argv[1])))
+    if not chunk:
+        break
+    s.send(chunk)
 
 time.sleep(3)  # dar tiempo para que vuelva la respuesta
 s.close()
