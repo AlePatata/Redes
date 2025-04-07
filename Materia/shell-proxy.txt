@@ -1,0 +1,67 @@
+Esta fue la conversación que tuve con la shell para probar mi solución de la actividad
+
+pss@debian12:~/Escritorio/Redes/Materia$ ./proxy-copy.py 1812 www.umag.cl 80 logs.txt
+Cliente conectado
+lost
+Cliente desconectado
+^CTraceback (most recent call last):
+  File "/home/pss/Escritorio/Redes/Materia/./proxy-copy.py", line 62, in <module>
+    conn, addr = s.accept()
+                 ^^^^^^^^^^
+  File "/usr/lib/python3.11/socket.py", line 294, in accept
+    fd, addr = self._accept()
+               ^^^^^^^^^^^^^^
+KeyboardInterrupt
+
+pss@debian12:~/Escritorio/Redes/Materia$ ./proxy-copy.py 1812 www.sek.cl 80 logs.txt
+Cliente conectado
+lost
+Cliente desconectado
+^CTraceback (most recent call last):
+  File "/home/pss/Escritorio/Redes/Materia/./proxy-copy.py", line 62, in <module>
+    conn, addr = s.accept()
+                 ^^^^^^^^^^
+  File "/usr/lib/python3.11/socket.py", line 294, in accept
+    fd, addr = self._accept()
+               ^^^^^^^^^^^^^^
+KeyboardInterrupt
+
+pss@debian12:~/Escritorio/Redes/Materia$ ./proxy-copy.py 1812 serviciopais.cl 80 logs.txt
+Cliente conectado
+lost
+Cliente desconectado
+^CTraceback (most recent call last):
+  File "/home/pss/Escritorio/Redes/Materia/./proxy-copy.py", line 62, in <module>
+    conn, addr = s.accept()
+                 ^^^^^^^^^^
+  File "/usr/lib/python3.11/socket.py", line 294, in accept
+    fd, addr = self._accept()
+               ^^^^^^^^^^^^^^
+KeyboardInterrupt
+
+pss@debian12:~/Escritorio/Redes/Materia$ ./proxy-copy.py 1812 dcc.uchile.cl 80 logs.txt
+Cliente conectado
+lost
+Cliente desconectado
+^CTraceback (most recent call last):
+  File "/home/pss/Escritorio/Redes/Materia/./proxy-copy.py", line 62, in <module>
+    conn, addr = s.accept()
+                 ^^^^^^^^^^
+  File "/usr/lib/python3.11/socket.py", line 294, in accept
+    fd, addr = self._accept()
+               ^^^^^^^^^^^^^^
+KeyboardInterrupt
+
+pss@debian12:~/Escritorio/Redes/Materia$ ./proxy-copy.py 1812 www.colina.cl 80 logs.txt
+Cliente conectado
+lost
+Cliente desconectado
+^CTraceback (most recent call last):
+  File "/home/pss/Escritorio/Redes/Materia/./proxy-copy.py", line 62, in <module>
+    conn, addr = s.accept()
+                 ^^^^^^^^^^
+  File "/usr/lib/python3.11/socket.py", line 294, in accept
+    fd, addr = self._accept()
+               ^^^^^^^^^^^^^^
+KeyboardInterrupt
+

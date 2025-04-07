@@ -1,0 +1,222 @@
+
+
+>>> to server
+Primera prueba: el sitio www.umag.cl de la Universidad de Magallanes
+
+
+<<< from server
+HTTP/1.1 400 Bad Request
+Date: Mon, 07 Apr 2025 02:23:10 GMT
+Server: Apache/2.4.61 (Debian)
+Content-Length: 304
+Connection: close
+Content-Type: text/html; charset=iso-8859-1
+
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html><head>
+<title>400 Bad Request</title>
+</head><body>
+<h1>Bad Request</h1>
+<p>Your browser sent a request that this server could not understand.<br />
+</p>
+<hr>
+<address>Apache/2.4.61 (Debian) Server at home.umag.cl Port 80</address>
+</body></html>
+
+
+>>> to server
+Segunda prueba con un sitio de error www.sek.cl
+
+
+<<< from server
+HTTP/1.1 400 Bad Request
+Connection: close
+cache-control: private, no-cache, no-store, must-revalidate, max-age=0
+pragma: no-cache
+content-type: text/html
+content-length: 769
+date: Mon, 07 Apr 2025 02:24:25 GMT
+
+<!DOCTYPE html>
+<html style="height:100%">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+<title> 400 Bad Request
+</title><style>@media (prefers-color-scheme:dark){body{background-color:#000!important}}</style></head>
+<body style="color: #444; margin:0;font: normal 14px/20px Arial, Helvetica, sans-serif; height:100%; background-color: #fff;">
+<div style="height:auto; min-height:100%; ">     <div style="text-align: center; width:800px; margin-left: -400px; position:absolute; top: 30%; left:50%;">
+        <h1 style="margin:0; font-size:150px; line-height:150px; font-weight:bold;">400</h1>
+<h2 style="margin-top:20px;font-size: 30px;">Bad Request
+</h2>
+<p>It is not a valid request!</p>
+</div></div></body></html>
+
+
+>>> to server
+Ahora con la página servicio pais
+
+
+<<< from server
+HTTP/1.1 400 Bad Request
+Date: Mon, 07 Apr 2025 02:25:36 GMT
+Server: Apache/2.4.41 (Ubuntu)
+Content-Length: 307
+Connection: close
+Content-Type: text/html; charset=iso-8859-1
+
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html><head>
+<title>400 Bad Request</title>
+</head><body>
+<h1>Bad Request</h1>
+<p>Your browser sent a request that this server could not understand.<br />
+</p>
+<hr>
+<address>Apache/2.4.41 (Ubuntu) Server at serviciopais.cl Port 80</address>
+</body></html>
+
+
+>>> to server
+Casi terminamos, probamos el sitio oficial del dcc
+
+
+<<< from server
+HTTP/1.1 400 Bad Request
+Date: Mon, 07 Apr 2025 02:26:28 GMT
+Server: Apache
+Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+Content-Length: 226
+Connection: close
+Content-Type: text/html; charset=iso-8859-1
+
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html><head>
+<title>400 Bad Request</title>
+</head><body>
+<h1>Bad Request</h1>
+<p>Your browser sent a request that this server could not understand.<br />
+</p>
+</body></html>
+
+
+>>> to server
+Por último la pagina de colina que debería mostrar un error
+
+
+<<< from server
+HTTP/1.1 400 Bad Request ( The data is invalid.  )
+Via: 1.1 TMG2
+Connection: close
+Proxy-Connection: close
+Pragma: no-cache
+Cache-Control: no-cache
+Content-Type: text/html
+Content-Length: 4013  
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD><TITLE>Error Message</TITLE>
+<META http-equiv=Content-Type content="text/html; charset=UTF-8">
+<STYLE id=L_default_1>A {
+	FONT-WEIGHT: bold; FONT-SIZE: 10pt; COLOR: #005a80; FONT-FAMILY: tahoma
+}
+A:hover {
+	FONT-WEIGHT: bold; FONT-SIZE: 10pt; COLOR: #0d3372; FONT-FAMILY: tahoma
+}
+TD {
+	FONT-SIZE: 8pt; FONT-FAMILY: tahoma
+}
+TD.titleBorder {
+	BORDER-RIGHT: #955319 1px solid; BORDER-TOP: #955319 1px solid; PADDING-LEFT: 8px; FONT-WEIGHT: bold; FONT-SIZE: 12pt; VERTICAL-ALIGN: middle; BORDER-LEFT: #955319 0px solid; COLOR: #955319; BORDER-BOTTOM: #955319 1px solid; FONT-FAMILY: tahoma; HEIGHT: 35px; BACKGROUND-COLOR: #d2b87a; TEXT-ALIGN: left
+}
+TD.titleBorderx {
+	BORDER-RIGHT: #955319 0px solid; BORDER-TOP: #955319 1px solid; PADDING-LEFT: 8px; FONT-WEIGHT: bold; FONT-SIZE: 12pt; VERTICAL-ALIGN: middle; BORDER-LEFT: #955319 1px solid; COLOR: #978c79; BORDER-BOTTOM: #955319 1px solid; FONT-FAMILY: tahoma; HEIGHT: 35px; BACKGROUND-COLOR: #d2b87a; TEXT-ALIGN: left
+}
+.TitleDescription {
+	FONT-WEIGHT: bold; FONT-SIZE: 12pt; COLOR: black; FONT-FAMILY: tahoma
+}
+SPAN.explain {
+	FONT-WEIGHT: normal; FONT-SIZE: 10pt; COLOR: #934225
+}
+SPAN.TryThings {
+	FONT-WEIGHT: normal; FONT-SIZE: 10pt; C
+
+<<< from server
+OLOR: #934225
+}
+.TryList {
+	MARGIN-TOP: 5px; FONT-WEIGHT: normal; FONT-SIZE: 8pt; COLOR: black; FONT-FAMILY: tahoma
+}
+.X {
+	BORDER-RIGHT: #955319 1px solid; BORDER-TOP: #955319 1px solid; FONT-WEIGHT: normal; FONT-SIZE: 12pt; BORDER-LEFT: #955319 1px solid; COLOR: #7b3807; BORDER-BOTTOM: #955319 1px solid; FONT-FAMILY: verdana; BACKGROUND-COLOR: #d1c2b4
+}
+.adminList {
+	MARGIN-TOP: 2px
+}
+</STYLE>
+<META content="MSHTML 6.00.2800.1170" name=GENERATOR></HEAD>
+<BODY bgColor=#f3f3ed>
+<TABLE cellSpacing=0 cellPadding=0 width="100%">
+  <TBODY>
+  <TR>
+    <TD class=titleBorderx width=30>
+      <TABLE height=25 cellSpacing=2 cellPadding=0 width=25 bgColor=black>
+        <TBODY>
+        <TR>
+          <TD id=L_default_x class=x valign=middle align=center>X</TD>
+        </TR>
+        </TBODY>
+      </TABLE>
+    </TD>
+    <TD class=titleBorder id=L_default_2>Network Access Message:<SPAN class=TitleDescription> The page cannot be displayed</SPAN> </TD>
+  </TR>
+  </TBODY>
+</TABLE>
+
+<TABLE id=spacer>
+  <TBODY>
+  <TR>
+    <TD height=10></TD></TR></TBODY></TABLE>
+<TABLE width=400>
+  <TBODY>
+  <TR>
+    <TD noWrap width=25></TD>
+    <TD width=400><SPAN class=explain><ID id=L_default_3><B>Explanation:</B></ID></SPAN><ID id=L_default_4> There is a problem with the page you are trying to reach and it cannot be displayed. </ID><BR><BR>
+    <B
+
+<<< from server
+><SPAN class=tryThings><ID id=L_default_5><B>Try the following:</B></ID></SPAN></B> 
+      <UL class=TryList>
+        <LI id=L_default_6><B>Refresh page:</B> Search for the page again by clicking the Refresh button. The timeout may have occurred due to Internet congestion.
+<LI id=L_default_7><B>Check spelling:</B> Check that you typed the Web page address correctly. The address may have been mistyped.
+<LI id=L_default_8><B>Access from a link:</B> If there is a link to the page you are looking for, try accessing the page from that link.
+
+      </UL>
+<ID id=L_default_9>If you are still not able to view the requested page, try contacting your administrator or Helpdesk.</ID> <BR><BR>
+    </TD>
+  </TR>
+  </TBODY>
+</TABLE>
+
+<TABLE id=spacer><TBODY><TR><TD height=15></TD></TR></TBODY></TABLE>
+
+<TABLE width=400>
+  <TBODY>
+  <TR>
+    <TD noWrap width=25></TD>
+    <TD width=400 id=L_default_10><B>Technical Information (for support personnel)</B> 
+      <UL class=adminList>
+        <LI id=L_default_11>Error Code: 400 Bad Request. The data is invalid. (13)
+<LI id=L_default_12>IP Address: 192.168.0.1
+<LI id=L_default_13>Date: 07-04-2025 2:27:26 [GMT]
+<LI id=L_default_14>Server: TMG2.colina.cl
+<LI id=L_default_15>Source: proxy
+
+      </UL>
+    </TD>
+  </TR>
+  </TBODY>
+</TABLE>
+
+</BODY>
+</HTML>
+

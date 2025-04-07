@@ -1,0 +1,3 @@
+No se me ocurrió copiarlos antes pero usé estos comandos para conectar un cliente al proxy de cada host. Usan netcat y el localhost apuntando al puerto 1812 (al que el proxy está esperando)
+
+pss@debian12:~$ nc 127.0.0.1 1812
