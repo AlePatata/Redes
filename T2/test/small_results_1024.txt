@@ -1,0 +1,8 @@
+===== Tiempo total de transferencia para 100 archivos =====
+Tiempo total: 1,0000 segundos
+===== Tiempo total de transferencia para 10 archivos =====
+Tiempo total: 31,0000 segundos
+===== Tiempo total de transferencia para 20 archivos =====
+Tiempo total: 17,0000 segundos
+===== Tiempo total de transferencia para 10 archivos =====
+Tiempo total: 29,0000 segundos

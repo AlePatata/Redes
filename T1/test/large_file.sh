@@ -8,8 +8,12 @@ INPUT_FILE="put/big_in.dat"
 OUTPUT_FILE="put/big_out.dat"
 RESULTS_FILE="test/results.txt"
 
+# Crear directorios necesarios
+mkdir -p put test
+
 echo "Generando archivo grande de 500MB..."
 dd if=/dev/zero of="$INPUT_FILE" bs=500M count=1 status=none
+
 run_test() {
     local host=$1
     local title=$2
@@ -18,17 +22,27 @@ run_test() {
     for size in $SIZES; do
         echo "Buffer size: $size bytes" >> "$RESULTS_FILE"
         
-        # Capturar tiempo y salida separadamente
-        exec 3>&1 
-    time_output=$( { time python3 client_bw.py $size $HOST_LOCAL $PORT < $INPUT_FILE > $OUTPUT_FILE >&3; } 2>&1 )
-        exec 3>&-  # Cerrar descriptor
+        # Medir tiempo de forma más confiable
+        start_time=$(date +%s.%N)
+        python3 client_bw.py $size $INPUT_FILE $OUTPUT_FILE $host $PORT
+        exit_code=$?
+        end_time=$(date +%s.%N)
         
-        # Extraer y formatear tiempos
-        real_time=$(echo "$time_output" | grep real | awk '{print $2}')
-        user_time=$(echo "$time_output" | grep user | awk '{print $2}')
-        sys_time=$(echo "$time_output" | grep sys | awk '{print $2}')
+        elapsed_time=$(LC_NUMERIC=C bc <<< "$end_time - $start_time")
         
-        printf "real\t%s\nuser\t%s\nsys\t%s\n" "$real_time" "$user_time" "$sys_time" >> "$RESULTS_FILE"
+        if [ $exit_code -ne 0 ]; then
+            echo "ERROR: El cliente falló con código $exit_code" >> "$RESULTS_FILE"
+        else
+            printf "real\t%.4f s\n" $elapsed_time >> "$RESULTS_FILE"
+            
+            # Verificar integridad del archivo
+            if cmp -s "$INPUT_FILE" "$OUTPUT_FILE"; then
+                echo "status\tArchivos coinciden" >> "$RESULTS_FILE"
+            else
+                echo "status\tERROR: Archivos difieren" >> "$RESULTS_FILE"
+            fi
+        fi
+        
         echo "-------------------------" >> "$RESULTS_FILE"
     done
 }
@@ -36,9 +50,11 @@ run_test() {
 # Limpiar archivo de resultados
 > "$RESULTS_FILE"
 
-# Ejecutar pruebas
+# Ejecutar solo pruebas locales
 run_test "$HOST_LOCAL" "Pruebas en LOCALHOST"
-echo -e "\n\n" >> "$RESULTS_FILE"
+
+# Ejecutar solo pruebas locales
 run_test "$HOST_ANAKENA" "Pruebas en ANAKENA"
+
 
 echo "Pruebas completadas. Resultados en $RESULTS_FILE"

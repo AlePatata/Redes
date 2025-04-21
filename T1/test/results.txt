@@ -1,35 +1,26 @@
 ===== Pruebas en LOCALHOST =====
 Buffer size: 1024 bytes
-real	1m15,404s
-user	0m3,612s
-sys	0m19,829s
+real	12,0000 s
+status\tERROR: Archivos difieren
 -------------------------
 Buffer size: 4096 bytes
-real	1m11,218s
-user	0m2,944s
-sys	0m17,744s
+real	4,0000 s
+status\tERROR: Archivos difieren
 -------------------------
 Buffer size: 8192 bytes
-real	1m14,230s
-user	0m2,601s
-sys	0m18,130s
+real	3,0000 s
+status\tERROR: Archivos difieren
 -------------------------
-
-
-
 ===== Pruebas en ANAKENA =====
 Buffer size: 1024 bytes
-real	1m12,329s
-user	0m3,760s
-sys	0m18,948s
+real	37,0000 s
+status\tERROR: Archivos difieren
 -------------------------
 Buffer size: 4096 bytes
-real	1m13,824s
-user	0m2,655s
-sys	0m19,635s
+real	38,0000 s
+status\tERROR: Archivos difieren
 -------------------------
 Buffer size: 8192 bytes
-real	1m12,373s
-user	0m2,281s
-sys	0m17,893s
+real	38,0000 s
+status\tERROR: Archivos difieren
 -------------------------
