@@ -88,7 +88,7 @@ with open(inp, 'rb') as infile:
                     errors += 1                                      # Aumentamos errores
                     akn_to_writer = (akn_to_writer + 1)%1000
                     byte_array_akn = format(akn_to_writer)
-                    print(f'Re-Sending package with AKN: {(byte_array_akn+chunk).decode()}')
+                    print(f'Re-Sending package with AKN: {byte_array_akn.decode()}')
                     bytes_sent_total += s.send(byte_array_akn+chunk) # Enviamos de nuevo
 
             # Si se cumplió que la variable global es la misma que mi akn local entonces aumentamos 
