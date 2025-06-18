@@ -1,105 +1,91 @@
 #!/usr/bin/python3
-# Echo client program
 import jsockets
 import sys, threading
 from threading import Lock, Condition, Event
 import socket as socket 
-import time # Para obtener hora envio y recepcion
 import queue # Para guardar los timeuts ordenados por proximidad
+from datetime import datetime, timedelta # Para obtener hora envio y recepcion
+from aux_functions import *
 
-# Variables globalesss
 mutex_lock = Lock()
 condition = Condition()
 done_event = Event()
 
+# Variables globalesss
 errors = 0
 packets = 0       # Without resending packages
 total_packets = 0 # Counting the re-sent packages
-bytes_received = 0
 ack_to_emisor = [-1 for i in range(1000)]
 last_confirmed = -1 # Ultimo ack confirmado
-higher_confirmed = -1 # Paquete más a la derecha recibido(considerando ciclo), para el cálculo de max_win
-max_win = 0
 horas_de_envio = queue.PriorityQueue()
-horas_de_recepción = []
+horas_de_recepción = [None for i in range(1000)]
 prom_tiempo = 0
+little_timeout = 1
+rtt_estimado = None
 
-### Funciones Auxiliaresss
-def format(i):
-  return str(i).zfill(3).encode
-
-def readAllWindow(func):  
-  return [func(size) or b'' for _ in range(win)]
-
-def estaEnVentana(begin, n):
-  return (n - begin + 1000) % 1000 < win
-
-# Dada una ventana, agrega un elemento al final y quita el primero
-def updateList(ventana, new_element):
-    ventana.append(new_element) # Agregar uno al final de la ventana
-    ventana.pop(0) # Sacar el primero en la ventana
-
-def siguienteAck(n):
-  return (n+1)%1000
 
 # Receptor
 def Rdr(s):
-  global bytes_received, ack_to_emisor, last_confirmed, timeout
-  expected = 0
-  s.settimeout(timeout)
-  eof = False
-  window_data = [None for i in range(win)] # Rellenamos con placeholders
-
+  global ack_to_emisor, last_confirmed, timeout, horas_de_recepción
+  expected = 0               # Primer paquete que se espera
+  eof = False                # Señal de fin de archivo
+  window_data = [None for _ in range(1000)]
+  recibido = [False for _ in range(1000)]
 
   with open(outp, 'wb') as outfile:
-
-    def writeNextChunk(): # Mueve la ventana del receptor (ack_to_emisor)
-      global window_data
-      outfile.write(window_data[0]) # Escribir
-      window_data.pop(0) # Quita el primer chunk en la ventana de data
-      window_data.append(-1) # Y agrega un elemnto que hace de placeholder para guardar otro chunk
-
-
-    def moveWindowAndWriteData(): # Mueve la ventana del receptor (ack_to_emisor)
-      global last_confirmed, expected
-      while ack_to_emisor[0] == siguienteAck(last_confirmed): # Si el primero es un aumento de lo último que recibió
-        last_confirmed = ack_to_emisor[0]
-        updateList(ack_to_emisor, None) # Agregamos un placeholder
-        writeNextChunk()
-      expected = siguienteAkn(last_confirmed)
-
-
     while not eof:
       try:
         total_data = s.recv(size + 3)
-        bytes_received += len(total_data)
+        t = datetime.now()
         data = total_data[3:]
-        ack_received_bytes = total_data[:3]
-        ack_received = int(ack_received_bytes.decode())
-        print("ack received: ", ack_received)
+        ack = int(total_data[:3].decode())
 
         with condition:
-          if estaEnVentana(expected, ack_received):
-            if expected == ack_received: 
-              if data == b'':
-                with mutex_lock:
-                  print("EOF marcador")
-                  done_event.set()
-                  condition.notify_all()
+          if estaEnVentana(expected, ack, win):
+            if horas_de_recepción[ack] is None:
+              horas_de_recepción[ack] = datetime.now()
+            if ack == expected:
+              if len(data) == 0:
+                print(f"EOF recibido en {ack}")
                 eof = True
+                done_event.set()
+                condition.notify_all()
                 break
               else:
-                with mutex_lock:
-                  moveWindowAndWriteData()
-            
-            # Obtenemos el indice del paquete recibido en nuestra ventana
-            index = (ack_received - expected + 1000)%1000 # diferencia modular
-            window_data[index] = data # guardamos el package
-            with mutex_lock:
-              ack_to_emisor[index] = ack_received # marcamos como recibido
-              moveWindowAndWriteData() # Si se puede movemos la ventana (no estoy segura si hará algojdfshfs)
-            condition.notify()
-          
+                  # Escribir paquete esperado
+                  outfile.write(data)
+                  recibido[ack] = True
+                  ack_to_emisor[ack] = ack
+                  print("Packet recieved ", ack)
+                  window_data[ack] = None  # No es necesario guardar
+
+                  # Avanzar ventana mientras haya paquetes recibidos pendientes
+                  next_ack = siguienteAck(ack)
+                  while recibido[next_ack]:
+                    if window_data[next_ack] == b'':
+                      print("EOF al avanzar ventana")
+                      eof = True
+                      done_event.set()
+                      condition.notify_all()
+                      break
+                    outfile.write(window_data[next_ack])
+                    recibido[next_ack] = False
+                    ack_to_emisor[next_ack] = -1
+                    window_data[next_ack] = None
+                    expected = next_ack
+                    next_ack = siguienteAck(expected)
+
+                  last_confirmed = expected
+                  expected = siguienteAck(last_confirmed)
+
+            else:
+              # Está en la ventana pero fuera de orden
+              window_data[ack] = data
+              recibido[ack] = True
+              ack_to_emisor[ack] = ack
+              print(f"Almacenado fuera de orden: {ack}")
+
+            condition.notify_all()      
       except socket.timeout:
         print("Timeout alcanzado en receptor")
         with mutex_lock:
@@ -129,39 +115,59 @@ newthread.start()
 
 # Emisor
 with open(inp, 'rb') as infile:
-  ack_to_receptor = [i for i in range(win)]
-  ack_to_emisor = [-1 for i in range(win)]  # Inicializamos ventana de receptor en -1's
-  window_data = readAllWindow(lambda _: infile.read(_)) # Ventanita de packages
-  windows_recieved = 0 # Variable para determinar cuantos paquetes faltan 
+  ack_to_receptor = [i for i in range(1000)]
+  window_data = [None for i in range(1000)]
+  first_in_window = 0 # Primer packet EN la ventana
+  for i in range(win):
+    window_data[i] = infile.read(size) # Ventanita de packages
 
-  def readNextLineAndAddToList(func): 
-    global window_data
-    window_data.pop(0) # Quita el primer chunk en la ventana de data
-    last_chunk = func(size)
-    if not last_chunk:
-      last_chunk = b''
-    window_data.append(last_chunk) # Y agrega uno nuevo que puede ser vacio
 
-  def moveWindowAndData():
-    global last_confirmed
-    first_one = ack_to_receptor[0]
-    for i in range((last_confirmed + 1 - first_one+1000)%1000): # diferencia modular
-      updateList(ack_to_receptor, (ack_to_receptor[-1]+1)%1000)
-      readNextLineAndAddToList(lambda _: infile.read(size))
+
+  def moveWindowAndSendData():
+    global last_confirmed, first_in_window, packets, total_packets
+    while distanciaBetween(first_in_window, siguienteAck(last_confirmed)) > 0:
+      newPacket = siguienteAck(first_in_window,win)
+      chunk = infile.read(size) # Leemos siguiente
+      if not chunk:
+        chunk = b''
+      window_data[newPacket] = chunk
+      window_data[first_in_window] = None # Limpiamos el primero
+      first_in_window = siguienteAck(first_in_window) # Avanzamos la ventana
+      
+      # Envio del nuevo paquete
+      byte_array_ack = format(newPacket)
+      print("Sending the packet ", newPacket)
+      b = s.send(byte_array_ack + chunk)
+      timeout_time = datetime.now() + timedelta(seconds=little_timeout)
+      horas_de_envio.put((timeout_time, newPacket))
+      packets += 1
+      total_packets += 1
+      
 
   def getBestTimeout():
+    global rtt_estimado, little_timeout
     while not horas_de_envio.empty():
-      t = horas_de_envio.queue[0][0] # Obtenemos el mejor timeout
-      index = horas_de_envio.get() # Sacamos el indice de ese paquete
-      ack_correspondiente = ack_to_receptor[index]
+      t_envio, index = horas_de_envio.get()
       with mutex_lock:
-        # Si el proximo timeout es de un paquete no confirmado
-        if ack_to_emisor[ack_correspondiente-1] != ack_correspondiente:
-          return t, index
-    # Si se acabó la cola, todos estaban confirmados. no deberíamos llegar a este caso
-    return -1, -1
+        if ack_to_emisor[index] != index:
+          return (t_envio, index)  # no ha sido confirmado, es candidato a retransmisión
+        elif horas_de_recepción[index] is not None:
+          rtt_sample = (horas_de_recepción[index] - (t_envio - timedelta(seconds=little_timeout))).total_seconds()
+          if rtt_estimado is None:
+            rtt_estimado = rtt_sample
+          else:
+            rtt_estimado = 0.5 * rtt_estimado + 0.5 * rtt_sample
+    return (-1, -1)
 
-    
+  for i in range(win):
+    byte_array_ack = format(i)
+    print("Sending the packet ", i)
+    timeout_time = datetime.now() + timedelta(seconds=little_timeout)
+    s.send(byte_array_ack + window_data[i])
+    horas_de_envio.put((timeout_time, i))
+  packets += win
+  total_packets += win
+
   while True:
     with mutex_lock:
       if done_event.is_set():
@@ -170,26 +176,32 @@ with open(inp, 'rb') as infile:
     with condition:
       with mutex_lock:
         # Si se puede avanzamos la ventana
-        moveWindowAndData() 
+        moveWindowAndSendData() 
 
-      while windows_recieved != win: # Mientras falten paquetes por recibir # cond protege datarace(?
-        proximo_timeout, index = getBestTimeout()
-        if proximo_timeout < time.time():
-          print("Timeout alcanzado por el package ", index+1, " reenviando...")
-          errors += 1
-          try:
-            new_timeout = time.time()
-            horas_de_envio.put((timeout, index)) # Actualizamos tiempo del que sacamos
-            s.send(window_data[index])
-          except error:
-            print("Error al enviar el paquete ", index)
-            continue
-        else:
-          # Si se cumplió que la variable global es la misma que mi ack local (el primero en la lista) 
-          # entonces avanzamos la ventana:  
-          with mutex_lock:
-            moveWindowAndData()
-    
+      (proximo_timeout, index) = getBestTimeout()
+
+      if index == -1:  # Aun no hay nada en la cola, pero no terminamos
+        with mutex_lock:
+          moveWindowAndSendData()
+        continue
+
+      time_diff = (datetime.now() - proximo_timeout).total_seconds()
+      if time_diff > 0:
+        print("Timeout alcanzado por el package ", index, " reenviando...")
+        errors += 1
+        try:
+          new_timeout = datetime.now() + timedelta(milliseconds=little_timeout)
+          horas_de_envio.put((new_timeout, index)) # Actualizamos tiempo del que sacamos
+          byte_array_ack = format(index)
+          s.send(byte_array_ack + window_data[index])
+        except Exception as e:
+          print("Error al enviar el paquete ", index, ": ", e)
+          continue
+      else:
+        # Si se cumplió que la variable global es la misma que mi ack local 
+        # entonces avanzamos la ventana:  
+        with mutex_lock:
+          moveWindowAndSendData()
 
 newthread.join()
 s.close()
@@ -198,5 +210,5 @@ print("sent ", packets, "packets,")
 print("retrans ", errors, ",")
 print("tot packs ", total_packets, ",")
 print(errors/total_packets, "%")
-print("Max_win: ", max_win)
-print("rtt est = ", )
+print("Max_win: ", win)
+print("rtt est = ", rtt_estimado)

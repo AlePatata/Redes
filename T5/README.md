@@ -1,47 +1,29 @@
 # T5
 ## Principales changesss
-- Ventana receptor: esta ventana no puede (o no sabría como implementarlo) ser como la del emisor, que la modelé literalmente como una lista de tamanno win que agregaba y sacaba elementos en sus extremos para "desplazarse", pues es más fácil de imaginar. Ahora no puedo pues habría una incoherencia entre los indices de las ventanas entre receptor y emisor, así que implementé directamente la idea del profe, tener un arreglo con 1000 casillas y 2 indices que se van moviendo, así puedo referirme a la casilla por un indice que servirá  para identificar literalmente qué ack es.
-- Cola de prioridad de timeouts: eso, una pqueue de enteros que indican el indice de paquete cuya prioridad es su timeout. De esta forma para obtener el mas proximo debo simplemente sacarlo de la cola (será el menor) y chequear si debería ser retransmitido (si fue confirmado o no). Para esto definí una función aux getBestTimeout() que me saca el par [timeout, indice_paquete]
-
-
-
-
-
-
-
-
-
-
-
-
-
+- Ventana receptor: esta ventana no puede (o no sabría como implementarlo) ser como la del emisor de la tarea pasada, que modelé literalmente como una lista de tamanno win que agregaba y sacaba elementos en sus extremos para "desplazarse", pues es más fácil de imaginar. Ahora no puedo pues habría una incoherencia entre los indices de las ventanas entre receptor y emisor, así que implementé directamente la idea del profe, tener un arreglo con 1000 casillas y un indice que indica donde inicia, así puedo referirme a la casilla por un indice que servirá  para identificar literalmente qué ack es.
+- Cola de prioridad de timeouts: eso, una priority queue de enteros que indican el indice de paquete cuya prioridad es su fecha de retransmisión. De esta forma para obtener el mas proximo debo simplemente sacarlo de la cola (será el menor) y chequear si debería ser retransmitido (si fue confirmado o no). Para esto definí una función aux getBestTimeout() que me saca el par [timeout, indice_paquete]
 
 
 ## Funciones Auxiliares:
+Dejé las funciones auxiliares simples en otro archivo para reducir un poco el volumen del código.
 
-- siguienteAck: suma 1 y saca modulo, porque me aburri de escribirlo en todos lados
-- readAllWindow(func) retorn la lista inicial que corresponde a la ventana de data (separada en paquetes) para ser enviados. Notese que le paso como parametro una funcion lambda que corresponde siempre a read, lo dejé así para que tuviera en consideración el contexto donde iba a ser ejecutada pero supongo que podría simplificarse
-- estaEnVentana(begin, n) verifica con la diferencia modular si el numero n está dentro del rango de la ventana considerando el ciclo
+- siguienteAck: suma (1 por defecto) y saca modulo, porque me aburri de escribirlo en todos lados
+- distanciaBetween(a,b): distancia modular por las mismas razones q la anterior
+- estaEnVentana(begin, n, win) verifica con la diferencia modular si el numero n está dentro del rango de la ventana considerando el ciclo
+- format: arma el string binario del ack
 
-# T4
 ### Funciones auxiliares dentro del emisor
-- updateList() agrega un nuevo ack a la lista de aks a enviar, luego quita el primer elemento para seguir teniendo el mismo tamaño de la ventana
-- readNextLineAndAddToList(func) lee una nueva linea del input, la grega al final de la lista de data (paquetes) y quita el primer elemento. Se le da (como en una funcion previa) como parametro una lambda que corresponde a la funcion read.
-- next() ejecuta ambas funciones que actualizan la data y los acks a enviar hasta el ultimo paquete confirmado hasta el momento (ack_to_emisor). Basicamente simula "mover la ventana"
 
-## De tareas previas...
-Se rescatan los prints y variables que llevan el conteo de bytes enviados y errores:
-- Bytes enviados: bytes enviados sin repetición
-- Total de bytes enviados: bytes enviados contando la repetición de algun paquete
-- Bytes recibidos: bytes recibidos por el thread receptor
-- Errores: cantidad de paquetes que hayan tenido que ser reenviados
-Además se utiliza la misma lógica para agregar el ack al envio de cada paquete con la función format(i)
+- moveWindowAndSendData() lee una nueva linea del archivo, la agrega a la window_data y la envía, itera esto lo que mas pueda. Además guarda los tiempos de envio en la cola de prioridad, considerando un timeout para cada paquete de "little_timeout" (asi le puse a esa variable)
+- getBestTimeout(): saca de la cola de prioridad el mejor que aun no haya sido confirmado para retornarlo y retransmitirlo. Esta funcion se usa en 
+
 
 ## Pruebas de exploración iniciales (con una imagen)
 Igual que en las tareas anteriores se probó primero con una imagen 66807 bytes. En general este protocolo tuvo un excelente desempeño casi sin errores, como se verá a continuación...
 
 ### Local
 Primero probamos con timeout de 3 segundos, size de 1024 y ventana de 10
+# T4
 ```shell
 time ./client_bw.py 1024 3 10 in.jpeg out.jpeg 127.0.0.1 1818
 
